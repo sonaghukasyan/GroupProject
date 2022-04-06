@@ -2,11 +2,13 @@ package im.aua.bankProject;
 
 public interface IUI {
     void start();
-    void startATM();
-    void startTelcell();
+    void useATM();
+    void useTelCell();
     void visitManager();
     void edit();
-    void addUser();
     void removeUser();
-
+    IUser createUser();
+    Card createCard();
+    void addDeposit();
+    void otherManagerServices();
 }

@@ -12,7 +12,7 @@ public abstract class Card {
     private long cardNumber;
     private Date expireDate;
     private boolean isBlocked;
-    private int balance;
+    private double balance;
 
     //add mutators and accessors, toString(), equals()
     public Card(){
@@ -47,9 +47,29 @@ public abstract class Card {
         this.cardNumber = card.cardNumber;
         this.isBlocked = card.isBlocked;
         this.expireDate = card.expireDate;
-
     }
 
+    public long getCardNumber(){
+        return this.cardNumber;
+    }
+
+    public String getPinCode(){
+        return this.pinCode;
+    }
+
+    public Date getExpireDate(){
+        return new Date(this.expireDate.getYear(),
+                this.expireDate.getMonth(),
+                this.expireDate.getDay());
+    }
+
+    public String getCardName(){
+        return this.cardName;
+    }
+
+    public double getBalance(){
+        return this.balance;
+    }
     private long generateNewCardNumber(Card[] allCards){
 
         Random random = new Random();
