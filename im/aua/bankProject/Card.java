@@ -3,6 +3,7 @@ package im.aua.bankProject;
 import java.time.Year;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Random;
 
 public abstract class Card {
@@ -57,19 +58,49 @@ public abstract class Card {
         return this.pinCode;
     }
 
+    public String getCardName() {
+        return this.cardName;
+    }
+
     public Date getExpireDate(){
         return new Date(this.expireDate.getYear(),
                 this.expireDate.getMonth(),
                 this.expireDate.getDay());
     }
 
-    public String getCardName(){
-        return this.cardName;
+    public double getBalance() {
+        return balance;
     }
 
-    public double getBalance(){
-        return this.balance;
+    public boolean getIsBlocked() {
+        return this.isBlocked;
     }
+
+    //mutators
+    public void setCardName(String cardName) {
+        this.cardName = cardName;
+    }
+
+    public void setCardNumber(long cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public void setPinCode(String pinCode) {
+        this.pinCode = pinCode;
+    }
+
+    public void setExpireDate(Date expireDate) {
+        this.expireDate = expireDate;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
     private long generateNewCardNumber(Card[] allCards){
 
         Random random = new Random();
@@ -81,5 +112,41 @@ public abstract class Card {
             }
         }
         return cardNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Card{" +
+                "cardName='" + cardName + '\'' +
+                ", cardNumber=" + cardNumber +
+                ", expireDate=" + expireDate +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this.getClass() == o.getClass()) {
+            Card card = (Card) o;
+            return cardNumber == card.cardNumber &&
+                    isBlocked == card.isBlocked &&
+                    Double.compare(card.balance, balance) == 0 &&
+                    cardName.equals(card.cardName) &&
+                    pinCode.equals(card.pinCode) &&
+                    expireDate.equals(card.expireDate);
+        }
+        else return false;
+    }
+
+    public static Card[] appendCard(Card[] arr, Card... p) {
+        Card[] append = new Card[arr.length + p.length];
+        int index = 0;
+        for(int i = 0; i < append.length; i++){
+            if(i < arr.length) append[i] = arr[i];
+            else{
+                append[i] = p[index];
+                index++;
+            }
+        }
+        return append;
     }
 }
