@@ -17,6 +17,13 @@ public class User implements IUser{
         passportNumber = "no passport number";
     }
 
+    public User(String name, String surname, String passportNumber){
+        this.name = name;
+        this.surname = surname;
+        this.passportNumber = passportNumber;
+        this.cards = new Card[0];
+    }
+
     public User(String name, String surname, String passportNumber, Card[] cards){
         this(name,surname,passportNumber);
         this.cards = new Card[cards.length];
@@ -72,12 +79,6 @@ public class User implements IUser{
         for(int i = 0; i < cards.length; i++) {
             this.cards[i] = cards[i];
         }
-    }
-
-    public User(String name, String surname, String passportNumber){
-        this.name = name;
-        this.surname = surname;
-        this.passportNumber = passportNumber;
     }
 
     public static IUser[] appendUser(IUser[] arr, User... p) {

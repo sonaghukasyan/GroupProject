@@ -7,7 +7,6 @@ public class Bank{
     private static Bank bank;
 
     private Bank(){
-        bank = new Bank();
         users = new IUser[0];
     }
 
@@ -18,7 +17,7 @@ public class Bank{
         }
     }
 
-    private Bank getOrSetBank(){
+    private static Bank getOrSetBank(){
         if(bank == null){
             bank = new Bank();
         }
@@ -26,7 +25,7 @@ public class Bank{
     }
 
     public static boolean addUser(IUser user) {
-        bank = bank.getOrSetBank();
+        bank = getOrSetBank();
         if(user != null){
             users = User.appendUser(users,new User((User)user));
             return true;
@@ -51,7 +50,7 @@ public class Bank{
     public static IUser requestUserData(String passport){
         bank = bank.getOrSetBank();
         for(int i = 0; i < users.length; i++){
-            if(((User)users[i]).getPassportNumber() == passport){
+            if(((User)users[i]).getPassportNumber().equals(passport)){
                 return users[i];
             }
         }
@@ -63,6 +62,7 @@ public class Bank{
         if(card != null){
             Card[] cards = ((User) user).getCards();
             cards = Card.appendCard(cards,card);
+           //inchvorban sxala ashxatum seti mej ((User) user).setCards(cards);
             return true;
         }
         return false;

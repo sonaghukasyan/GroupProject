@@ -16,14 +16,17 @@ public class UI implements IUI{
             case 1:
                 System.out.println("\033[H\033[2J");
                 visitManager();
+                start();
                 break;
             case 2:
                 System.out.println("\033[H\033[2J");
                 useATM();
+                start();
                 break;
             case 3:
                 System.out.println("\033[H\033[2J");
                 useTelCell();
+                start();
                 break;
             default:
                 System.out.println("\033[H\033[2J");
@@ -119,7 +122,6 @@ public class UI implements IUI{
             case 1:
                 System.out.println("\033[H\033[2J");
                 createUser();
-                System.out.println("\033[H\033[2J");
                 visitManager();
                 break;
             case 2:
@@ -154,7 +156,7 @@ public class UI implements IUI{
         for(int i = 0; i < 3; i++ ){
             System.out.print("Passport: ");
             passport = scanner.next();
-            if(IUser.isPassportValid(passport)){
+            if(!IUser.isPassportValid(passport)){
                 System.out.println("Invalid passport.Try again ");
                 break;
             }
@@ -162,10 +164,14 @@ public class UI implements IUI{
                 System.out.println("Invalid passport attempts ended.");
                 System.exit(0);
             }
+            else{
+                break;
+            }
         }
         IUser user = new User(name,surname,passport);
         //petqa manager class unenal u es amboxjy ira mijocov anel?
         Bank.addUser(user);
+        System.out.println("User is created!");
         return user;
     }
 
@@ -207,6 +213,7 @@ public class UI implements IUI{
             }
         }
         Bank.addCard(user,card);
+        System.out.println(card.toString());
         return card;
     }
 
