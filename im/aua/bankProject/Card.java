@@ -3,36 +3,39 @@ package im.aua.bankProject;
 import java.time.Year;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
-import java.util.Random;
 
 public abstract class Card {
 
+    public enum CardType{
+        VISA,
+        MASTER
+    }
+    private CardType type;
     private String cardName;
-    private String pinCode;
+    private short pinCode;
     private long cardNumber;
     private Date expireDate;
     private boolean isBlocked;
     private double balance;
 
-    //add mutators and accessors, toString(), equals()
     public Card(){
         cardName = "No name";
-        pinCode =  "no pin code";
+        pinCode =  0;
         cardNumber = 0;
         expireDate = new Date(Year.now().getValue() + 2, Calendar.FEBRUARY, 1);
         isBlocked = false;
+        type = CardType.VISA;
     }
 
-    public Card(String cardName, String pinCode){
+    public Card(String cardName, CardType type, short pinCode){
 
-        if(cardName == null || pinCode == null){
+        if(cardName == null){
             System.out.println("Card name or pin code is null");
             System.exit(0);
         }
         this.cardName = cardName;
         this.pinCode = pinCode;
-        this.cardNumber = generateNewCardNumber(new Card[]{});
+        this.cardNumber = Bank.generateNewCardNumber();
         this.isBlocked = false;
         this.expireDate = new Date( Calendar.getInstance().get(Calendar.YEAR) + 2, Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DATE));
     }
@@ -54,7 +57,7 @@ public abstract class Card {
         return this.cardNumber;
     }
 
-    public String getPinCode(){
+    public short getPinCode(){
         return this.pinCode;
     }
 
@@ -85,7 +88,7 @@ public abstract class Card {
         this.cardNumber = cardNumber;
     }
 
-    public void setPinCode(String pinCode) {
+    public void setPinCode(short pinCode) {
         this.pinCode = pinCode;
     }
 
@@ -101,18 +104,6 @@ public abstract class Card {
         isBlocked = blocked;
     }
 
-    private long generateNewCardNumber(Card[] allCards){
-
-        Random random = new Random();
-        long cardNumber = random.nextLong(1000000000000000l,10000000000000000L);
-
-        for(int i = 0; i < allCards.length; i++){
-            if(allCards[i].cardNumber == cardNumber){
-                generateNewCardNumber(allCards);
-            }
-        }
-        return cardNumber;
-    }
 
     @Override
     public String toString() {
@@ -131,7 +122,7 @@ public abstract class Card {
                     isBlocked == card.isBlocked &&
                     Double.compare(card.balance, balance) == 0 &&
                     cardName.equals(card.cardName) &&
-                    pinCode.equals(card.pinCode) &&
+                    pinCode == card.pinCode &&
                     expireDate.equals(card.expireDate);
         }
         else return false;
@@ -148,5 +139,14 @@ public abstract class Card {
             }
         }
         return append;
+    }
+
+    public static boolean isValidPinCode(short pinCode){
+        int count = 0;
+        while(pinCode > 0){
+            count++;
+            pinCode /= 10;
+        }
+        return count <= 4;
     }
 }

@@ -80,11 +80,11 @@ public class User implements IUser{
         this.passportNumber = passportNumber;
     }
 
-    public static User[] appendUser(User[] arr, User... p) {
+    public static IUser[] appendUser(IUser[] arr, User... p) {
         User[] append = new User[arr.length + p.length];
         int index = 0;
         for(int i = 0; i < append.length; i++){
-            if(i < arr.length) append[i] = arr[i];
+            if(i < arr.length) append[i] = (User)arr[i];
             else{
                 append[i] = p[index];
                 index++;
