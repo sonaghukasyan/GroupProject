@@ -2,11 +2,11 @@ package im.aua.bankProject;
 
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.stream.StreamSupport;
 
-public class UI implements IUI{
+public class UI{
     private Scanner scanner = new Scanner(System.in);
 
-    @Override
     public void start() {
         System.out.println("Write corresponding letter.");
         System.out.println("1.Visit Manager  2.Use ATM  3.Use TelCell");
@@ -36,7 +36,6 @@ public class UI implements IUI{
         }
     }
 
-    @Override
     public void useATM() {
         System.out.println("Write card number: ");
         long cardNumber = scanner.nextLong();
@@ -49,19 +48,14 @@ public class UI implements IUI{
             try{
                 atm  = new ATM(cardNumber,pinCode);
                 break;
-            }
-            catch(CardNotFoundException ex){
-                System.out.println(ex.getMessage());
-                System.exit(0);
-            }
-            catch (CardIsBlockedException ex){
+            } catch (CardIsBlockedException ex){
                 System.out.println(ex.getMessage());
                 start();
             }
             catch (InvalidPincodeException ex){
                 System.out.println(ex.getMessage());
             }
-            catch (CardException ex){
+            catch(CardException ex){
                 System.out.println(ex.getMessage());
                 System.exit(0);
             }
@@ -81,15 +75,19 @@ public class UI implements IUI{
                 System.out.println("Withdrawal amount: ");
                 double money = scanner.nextDouble();
 
-                if (atm.cashWithdrawal(money)) {
-                    System.out.println("Get your money.");
-                } else {
-                    System.out.println("Not enough funds");
+                try{
+                    if (atm.withdrawMoney(money)) {
+                        System.out.println("Get your money.");
+                    } else {
+                        System.out.println("Not enough funds");
+                    }
+                    System.out.println("Get your card!");
+                    start();
+                    break;
                 }
-                System.out.println("Get your card!");
-                start();
-                break;
-
+                catch (CardIsBlockedException ex){
+                    System.out.println(ex.getMessage());
+                }
             default:
                 System.out.println("Invalid option");
                 start();
@@ -97,7 +95,6 @@ public class UI implements IUI{
         }
     }
 
-    @Override
     public void useTelCell() {
         System.out.println("Write card number: ");
         long cardNumber = scanner.nextLong();
@@ -112,7 +109,6 @@ public class UI implements IUI{
         }
     }
 
-    @Override
     public void visitManager() {
         System.out.println("Write corresponding letter.");
         System.out.println("1.Add user  2.Create new Card  3.Add deposit  4.Unblock card");
@@ -143,8 +139,7 @@ public class UI implements IUI{
         }
     }
 
-    @Override
-    public IUser createUser() {
+    public User createUser() {
         System.out.print("Name: ");
         String name = scanner.next();
 
@@ -156,7 +151,7 @@ public class UI implements IUI{
         for(int i = 0; i < 3; i++ ){
             System.out.print("Passport: ");
             passport = scanner.next();
-            if(!IUser.isPassportValid(passport)){
+            if(!User.isPassportValid(passport)){
                 System.out.println("Invalid passport.Try again ");
                 break;
             }
@@ -168,20 +163,16 @@ public class UI implements IUI{
                 break;
             }
         }
-        IUser user = new User(name,surname,passport);
+        User user = new User(name,surname,passport);
         //petqa manager class unenal u es amboxjy ira mijocov anel?
         Bank.addUser(user);
         System.out.println("User is created!");
         return user;
     }
 
-    @Override
     public Card createCard() {
-        IUser user = getUser();
-        String cardName = ((User)user).getName() + " " + ((User)user).getSurname();
-
-        System.out.print("Card Type  1.Visa  2.Master");
-        int value = scanner.nextInt();
+        User user = getUser();
+        String cardName = user.getName() + " " + user.getSurname();
 
         System.out.println("Write 4-digit pin code");
         short pincode;
@@ -194,18 +185,24 @@ public class UI implements IUI{
             break;
         }
 
+
+        System.out.print("Card Type: 1.Debit Card 2.Credit Card");
+        int value = scanner.nextInt();
+
         Card.CardType type;
         boolean state = true;
         Card card = null;
 
         while(state){
             switch (value){
-                case 1: type = Card.CardType.VISA;
-                        card = new Visa(cardName,type,pincode);
+                case 1: type = Card.CardType.DEBIT;
+                        card = new DebitCard(cardName,type,pincode);
                         state = false;
                         break;
-                case 2: type = Card.CardType.MASTER;
-                        card = new Master(cardName,type,pincode);
+                case 2: type = Card.CardType.CREDIT;
+                        System.out.print("Credit card loan money amount: ");
+                        double lineBalance = scanner.nextDouble();
+                        card = new CreditCard(cardName,type,pincode,lineBalance);
                         state = false;
                         break;
                 default: System.out.println("Invalid option, try again");
@@ -218,7 +215,7 @@ public class UI implements IUI{
     }
 
     //manager classum avelacru verifyUser sra poxaren
-    public IUser getUser(){
+    public User getUser(){
         System.out.println("Write corresponding number.");
         System.out.println("Are you registered?  1.Yes  2.No");
         int value = scanner.nextInt();
@@ -230,7 +227,7 @@ public class UI implements IUI{
             case 1:
                 System.out.print("Passport: ");
                 String passport = scanner.next();
-                IUser user = Bank.requestUserData(passport);
+                User user = Bank.requestUserData(passport);
                 if(user == null){
                     System.out.println("Not valid user, please create account");
                     return createUser();
@@ -243,23 +240,18 @@ public class UI implements IUI{
         }
     }
 
-    @Override
     public void edit() {
 
     }
 
-    @Override
     public void removeUser() {
 
     }
 
-
-    @Override
     public void addDeposit() {
 
     }
 
-    @Override
     public void otherManagerServices() {
 
     }

@@ -33,13 +33,7 @@ public class ATM {
         return this.card.getBalance();
     }
 
-    public boolean cashWithdrawal(double money){
-        if(card.getBalance() >= money){
-            double balance = card.getBalance();
-            balance -= money;
-            card.setBalance(balance);
-            return true;
-        }
-        return false;
+    public boolean withdrawMoney(double money) throws CardIsBlockedException {
+       return this.card.withdrawMoney(money);
     }
 }

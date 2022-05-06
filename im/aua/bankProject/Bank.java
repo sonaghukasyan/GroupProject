@@ -1,19 +1,21 @@
 package im.aua.bankProject;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Bank{
-    private static IUser[] users;
+    private static ArrayList<User> users;
     private static Bank bank;
 
     private Bank(){
-        users = new IUser[0];
+        users = new ArrayList<User>();
     }
 
-    private Bank(IUser[] users){
-        this.users = new IUser[users.length];
-        for(int i = 0; i < users.length;i++){
-            this.users[i] = users[i];
+    private Bank(User[] users){
+        this.users = new ArrayList<User>();
+        //add null check for given users
+        for(User user: users){
+            this.users.add(user);
         }
     }
 
@@ -24,22 +26,23 @@ public class Bank{
         return bank;
     }
 
-    public static boolean addUser(IUser user) {
+    public static boolean addUser(User user) {
         bank = getOrSetBank();
         if(user != null){
-            users = User.appendUser(users,new User((User)user));
+            users.add(new User(user));
             return true;
         }
         return false;
     }
 
     public static Card requestCardData(long cardNumber){
-        for(IUser user: users) {
-            Card[] cards = ((User) user).getCards();
-            for (int i = 0; i < cards.length; i++) {
-                if (cards[i].getCardNumber() == cardNumber) {
+        bank = getOrSetBank();
+        for(User user: users) {
+            ArrayList<Card> cards = user.getCards();
+            for(Card card: cards){
+                if (card.getCardNumber() == cardNumber) {
                     //cardy cloneable sarqel u cloney tal?
-                    return cards[i];
+                    return card;
                 }
             }
         }
@@ -47,35 +50,34 @@ public class Bank{
     }
 
 
-    public static IUser requestUserData(String passport){
+    public static User requestUserData(String passport){
         bank = bank.getOrSetBank();
-        for(int i = 0; i < users.length; i++){
-            if(((User)users[i]).getPassportNumber().equals(passport)){
-                return users[i];
-            }
+        for(User user: users){
+            if(user.getPassportNumber().equals(passport))
+                return user;
         }
         return null;
     }
 
     //manageri mot tar
-    public static boolean addCard(IUser user, Card card){
+    public static boolean addCard(User user, Card card){
+        bank = getOrSetBank();
         if(card != null){
-            Card[] cards = ((User) user).getCards();
-            cards = Card.appendCard(cards,card);
-           //inchvorban sxala ashxatum seti mej ((User) user).setCards(cards);
-            return true;
+            user.addCard(card);
+           return true;
         }
         return false;
     }
 
     public static long generateNewCardNumber(){
+        getOrSetBank();
         Random random = new Random();
         long cardNumber = random.nextLong(1000000000000000l,10000000000000000L);
 
-        for(IUser user: users) {
-            Card[] cards = ((User)user).getCards();
-            for(int i = 0; i < cards.length; i++){
-                if(cards[i].getCardNumber() == cardNumber){
+        for(User user: users) {
+            ArrayList<Card> cards = user.getCards();
+            for(Card card: cards){
+                if(card.getCardNumber() == cardNumber){
                     generateNewCardNumber();
                 }
             }
@@ -83,7 +85,7 @@ public class Bank{
         return cardNumber;
     }
 
-    public boolean removeUser(IUser user) {
+    public boolean removeUser(User user) {
         return false;
     }
 

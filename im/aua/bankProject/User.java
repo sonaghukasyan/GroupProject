@@ -1,17 +1,18 @@
 package im.aua.bankProject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class User implements IUser{
-    private Card[] cards;
+public class User{
+    private ArrayList<Card> cards;
     private String name;
     private String surname;
     private String passportNumber; // make passport class, make deposit class and keep Deposit[] array
 
     //constructors
     public User(){
-        cards = new Card[0];
+        cards = new ArrayList<Card>();
         name = "no name";
         surname = "no surname";
         passportNumber = "no passport number";
@@ -21,14 +22,15 @@ public class User implements IUser{
         this.name = name;
         this.surname = surname;
         this.passportNumber = passportNumber;
-        this.cards = new Card[0];
+        this.cards = new ArrayList<Card>();;
     }
 
-    public User(String name, String surname, String passportNumber, Card[] cards){
+    public User(String name, String surname, String passportNumber, ArrayList<Card> cards){
         this(name,surname,passportNumber);
-        this.cards = new Card[cards.length];
-        for(int i = 0; i < cards.length; i++) {
-            this.cards[i] = cards[i];
+        this.cards = new ArrayList<Card>();
+        //null check for given cards.
+        for(Card card: cards){
+            this.cards.add(card);
         }
     }
 
@@ -40,18 +42,19 @@ public class User implements IUser{
         this.name = user.name;
         this.surname = user.surname;
         this.passportNumber = user.passportNumber;
-        this.cards = new Card[user.cards.length];
-        for(int i = 0; i < user.cards.length; i++) {
-            this.cards[i] = user.cards[i];
+        this.cards = new ArrayList<Card>();
+        //null check for given cards.
+        for(Card card: cards){
+            this.cards.add(card);
         }
     }
 
     //add mutators,appendCard,toString,equals, copy, no arg
     //accessors
-    public Card[] getCards() {
-        Card[] copyCards = new Card[cards.length];
-        for(int i = 0; i < copyCards.length; i++) {
-            copyCards[i] = cards[i];
+    public ArrayList<Card> getCards() {
+        ArrayList<Card> copyCards = new ArrayList<Card>();
+        for(Card card: cards){
+            copyCards.add(card);
         }
         return copyCards;
     }
@@ -75,26 +78,19 @@ public class User implements IUser{
     public void setSurname(String surname) {
         this.surname = surname;
     }
-    public void setCards(Card[] cards) {
-        for(int i = 0; i < cards.length; i++) {
-            this.cards[i] = cards[i];
-        }
+
+    public void addCard(Card card) {
+        //null check?
+        this.cards.add(card);
     }
 
-    public static IUser[] appendUser(IUser[] arr, User... p) {
-        User[] append = new User[arr.length + p.length];
-        int index = 0;
-        for(int i = 0; i < append.length; i++){
-            if(i < arr.length) append[i] = (User)arr[i];
-            else{
-                append[i] = p[index];
-                index++;
-            }
-        }
-        return append;
+    public static boolean isPassportValid(String password){
+        return true;
+        //logika greq
     }
 
-    @Override
+    //sxal a equalsy grac?
+    /*
     public boolean equals(Object o) {
         if (this.getClass() == o.getClass()) {
             User user = (User) o;
@@ -104,5 +100,5 @@ public class User implements IUser{
                     passportNumber.equals(user.passportNumber);
         }
         else return false;
-    }
+    }*/
 }

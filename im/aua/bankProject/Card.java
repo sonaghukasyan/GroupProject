@@ -1,14 +1,15 @@
 package im.aua.bankProject;
 
+import java.io.Serializable;
 import java.time.Year;
 import java.util.Calendar;
 import java.util.Date;
 
-public abstract class Card {
+public abstract class Card implements Serializable {
 
     public enum CardType{
-        VISA,
-        MASTER
+        DEBIT,
+        CREDIT
     }
     private CardType type;
     private String cardName;
@@ -24,7 +25,7 @@ public abstract class Card {
         cardNumber = 0;
         expireDate = new Date(Year.now().getValue() + 2, Calendar.FEBRUARY, 1);
         isBlocked = false;
-        type = CardType.VISA;
+        type = CardType.DEBIT;
     }
 
     public Card(String cardName, CardType type, short pinCode){
@@ -107,6 +108,7 @@ public abstract class Card {
 
     @Override
     public String toString() {
+
         return "Card{" +
                 "cardName='" + cardName + '\'' +
                 ", cardNumber=" + cardNumber +
@@ -128,19 +130,6 @@ public abstract class Card {
         else return false;
     }
 
-    public static Card[] appendCard(Card[] arr, Card... p) {
-        Card[] append = new Card[arr.length + p.length];
-        int index = 0;
-        for(int i = 0; i < append.length; i++){
-            if(i < arr.length) append[i] = arr[i];
-            else{
-                append[i] = p[index];
-                index++;
-            }
-        }
-        return append;
-    }
-
     public static boolean isValidPinCode(short pinCode){
         int count = 0;
         while(pinCode > 0){
@@ -148,5 +137,15 @@ public abstract class Card {
             pinCode /= 10;
         }
         return count <= 4;
+    }
+
+    public abstract boolean withdrawMoney(double money) throws CardIsBlockedException;
+
+    public boolean transferMoney(double money){
+            if(money >= 0){
+                balance += money;
+                return true;
+            }
+            return false;
     }
 }
