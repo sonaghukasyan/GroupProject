@@ -8,7 +8,8 @@ public class User{
     private ArrayList<Card> cards;
     private String name;
     private String surname;
-    private String passportNumber; // make passport class, make deposit class and keep Deposit[] array
+    private String passportNumber;
+    private ArrayList<Deposit> deposits;
 
     //constructors
     public User(){
@@ -54,7 +55,7 @@ public class User{
     public ArrayList<Card> getCards() {
         ArrayList<Card> copyCards = new ArrayList<Card>();
         for(Card card: cards){
-            copyCards.add(card);
+            copyCards.add(card.clone());
         }
         return copyCards;
     }
@@ -80,25 +81,20 @@ public class User{
     }
 
     public void addCard(Card card) {
-        //null check?
-        this.cards.add(card);
+        if(card != null)
+           this.cards.add(card.clone());
     }
 
-    public static boolean isPassportValid(String password){
+    public static boolean isPassportValid(String passport){
         return true;
         //logika greq
     }
 
-    //sxal a equalsy grac?
-    /*
-    public boolean equals(Object o) {
-        if (this.getClass() == o.getClass()) {
-            User user = (User) o;
-            return Arrays.equals(cards, user.cards) &&
-                    name.equals(user.name) &&
-                    surname.equals(user.surname) &&
-                    passportNumber.equals(user.passportNumber);
+    public ArrayList<Deposit> getDeposits() {
+        ArrayList<Deposit> copyDeposits = new ArrayList<>();
+        for(Deposit deposit: deposits) {
+            copyDeposits.add(new Deposit(deposit));
         }
-        else return false;
-    }*/
+        return copyDeposits;
+    }
 }

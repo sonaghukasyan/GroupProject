@@ -1,6 +1,7 @@
 package im.aua.bankProject;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.StreamSupport;
 
@@ -8,7 +9,7 @@ public class UI{
     private Scanner scanner = new Scanner(System.in);
 
     public void start() {
-        System.out.println("Write corresponding letter.");
+        System.out.println("Write corresponding number.");
         System.out.println("1.Visit Manager  2.Use ATM  3.Use TelCell");
         int value = scanner.nextInt();
 
@@ -37,18 +38,65 @@ public class UI{
     }
 
     public void useATM() {
+
+        ATM atm = createATM();
+        System.out.println("\033[H\033[2J");
+        System.out.println("1.Balance Inquiry   2.Cash Withdrawal");
+        int value = scanner.nextInt();
+
+        try{
+            switch (value) {
+                case 1:
+                    System.out.println("\033[H\033[2J");
+                    System.out.println(atm.balanceInquiry());
+                    break;
+                case 2:
+                    System.out.println("\033[H\033[2J");
+                    System.out.println("Withdrawal amount: ");
+                    double money = scanner.nextDouble();
+
+                    if (atm.withdrawMoney(money)) {
+                        System.out.println("Get your money.");
+                    } else {
+                        System.out.println("Not enough funds");
+                    }
+                    System.out.println("Get your card!");
+                    start();
+                    break;
+
+                default:
+                    System.out.println("Invalid option");
+                    start();
+                    break;
+            }
+        }
+        catch(CardException ex){
+            System.out.println(ex.getMessage());
+            System.exit(0);
+        }
+    }
+
+    public ATM createATM(){
         System.out.println("Write card number: ");
         long cardNumber = scanner.nextLong();
 
-        System.out.println("Write pin code: ");
-        short pinCode = scanner.nextShort();
-
         ATM atm;
-        while(true){
-            try{
-                atm  = new ATM(cardNumber,pinCode);
-                break;
-            } catch (CardIsBlockedException ex){
+        try{
+            atm = new ATM(cardNumber);
+        }
+        catch (CardNotFoundException ex){
+            System.out.println(ex.getMessage());
+            atm = null;
+            start();
+        }
+
+        while(atm.getTries() <= ATM.maxPinCodeTries) {
+            try {
+                System.out.println("Write pin code: ");
+                short pinCode = scanner.nextShort();
+                atm.verifyPinAndCard(pinCode);
+            }
+            catch (CardIsBlockedException ex){
                 System.out.println(ex.getMessage());
                 start();
             }
@@ -60,40 +108,9 @@ public class UI{
                 System.exit(0);
             }
         }
-
-        System.out.println("\033[H\033[2J");
-        System.out.println("1.Balance Inquiry   2.Cash Withdrawal");
-        int value = scanner.nextInt();
-
-        switch (value) {
-            case 1:
-                System.out.println("\033[H\033[2J");
-                System.out.println(atm.balanceInquiry());
-                break;
-            case 2:
-                System.out.println("\033[H\033[2J");
-                System.out.println("Withdrawal amount: ");
-                double money = scanner.nextDouble();
-
-                try{
-                    if (atm.withdrawMoney(money)) {
-                        System.out.println("Get your money.");
-                    } else {
-                        System.out.println("Not enough funds");
-                    }
-                    System.out.println("Get your card!");
-                    start();
-                    break;
-                }
-                catch (CardIsBlockedException ex){
-                    System.out.println(ex.getMessage());
-                }
-            default:
-                System.out.println("Invalid option");
-                start();
-                break;
-        }
+        return atm;
     }
+
 
     public void useTelCell() {
         System.out.println("Write card number: ");
@@ -104,7 +121,6 @@ public class UI{
             Telcell.transferMoney(cardNumber,money);
         }
         catch (Exception ex){
-            System.out.println(ex.getMessage());
             System.exit(0);
         }
     }
@@ -130,7 +146,7 @@ public class UI{
                 break;
             case 4:
                 System.out.println("\033[H\033[2J");
-                otherManagerServices();
+                unblockCard();
             default:
                 System.out.println("\033[H\033[2J");
                 System.out.println("Invalid letter");
@@ -146,28 +162,49 @@ public class UI{
         System.out.print("Surname: ");
         String surname = scanner.next();
 
-        String passport = "";
-        //3 attempts to write valid passport number;
-        for(int i = 0; i < 3; i++ ){
-            System.out.print("Passport: ");
-            passport = scanner.next();
-            if(!User.isPassportValid(passport)){
-                System.out.println("Invalid passport.Try again ");
-                break;
-            }
-            if(i == 2){
-                System.out.println("Invalid passport attempts ended.");
-                System.exit(0);
-            }
-            else{
-                break;
-            }
-        }
+        System.out.print("Passport: ");
+        String passport = scanner.next();
+
         User user = new User(name,surname,passport);
-        //petqa manager class unenal u es amboxjy ira mijocov anel?
-        Bank.addUser(user);
+        try{
+            Manager.addUser(user);
+        } catch (InvalidPassportException ex) {
+            System.out.println(ex.getMessage());
+            start();
+        }
         System.out.println("User is created!");
         return user;
+    }
+
+    public User getUser(){
+        System.out.println("Write corresponding number.");
+        System.out.println("Are you registered?  1.Yes  2.No");
+        int value = scanner.nextInt();
+
+        switch (value){
+            case 2:
+                System.out.println("\033[H\033[2J");
+                return createUser();
+            case 1:
+                System.out.print("Passport: ");
+                String passport = scanner.next();
+                try{
+                    User user = Manager.verifyUser(passport);
+                    if(user == null){
+                        System.out.println("Not valid user, please create account");
+                        return createUser();
+                    }
+                    return user;
+
+                } catch (InvalidPassportException e) {
+                    System.out.println(e.getMessage());
+                    getUser();
+                }
+            default:
+                System.out.println("\033[H\033[2J");
+                System.out.println("Invalid option, try again.");
+                return getUser();
+        }
     }
 
     public Card createCard() {
@@ -185,7 +222,6 @@ public class UI{
             break;
         }
 
-
         System.out.print("Card Type: 1.Debit Card 2.Credit Card");
         int value = scanner.nextInt();
 
@@ -196,63 +232,102 @@ public class UI{
         while(state){
             switch (value){
                 case 1: type = Card.CardType.DEBIT;
-                        card = new DebitCard(cardName,type,pincode);
-                        state = false;
-                        break;
+                    card = new DebitCard(cardName,type,pincode);
+                    state = false;
+                    break;
                 case 2: type = Card.CardType.CREDIT;
-                        System.out.print("Credit card loan money amount: ");
-                        double lineBalance = scanner.nextDouble();
-                        card = new CreditCard(cardName,type,pincode,lineBalance);
-                        state = false;
-                        break;
+                    System.out.print("Credit card loan money amount: ");
+                    double lineBalance = scanner.nextDouble();
+                    card = new CreditCard(cardName,type,pincode,lineBalance);
+                    state = false;
+                    break;
                 default: System.out.println("Invalid option, try again");
-                         break;
+                    break;
             }
         }
-        Bank.addCard(user,card);
-        System.out.println(card.toString());
+        Manager.AddCard(user,card);
+        System.out.println("Your card info: \n" + card.toString());
         return card;
     }
 
-    //manager classum avelacru verifyUser sra poxaren
-    public User getUser(){
-        System.out.println("Write corresponding number.");
-        System.out.println("Are you registered?  1.Yes  2.No");
-        int value = scanner.nextInt();
+    public void addDeposit() {
+        User user = getUser();
+        System.out.println("You may get a deposit in amount of " + Deposit.MINIMUM + "-"+
+                Deposit.MAXIMUM +  "AMD");
+        boolean flag = true;
+        while (flag) {
+            System.out.println("How much initial deposit do you want?");
 
-        switch (value){
-            case 2:
-                System.out.println("\033[H\033[2J");
-                return createUser();
-            case 1:
-                System.out.print("Passport: ");
-                String passport = scanner.next();
-                User user = Bank.requestUserData(passport);
-                if(user == null){
-                    System.out.println("Not valid user, please create account");
-                    return createUser();
-                }
-                return user;
-            default:
-                System.out.println("\033[H\033[2J");
-                System.out.println("Invalid option, try again.");
-                return getUser();
+            double initialDeposit = scanner.nextDouble();
+
+            System.out.println("For how many months do you want to keep the deposit?");
+            System.out.println("1   3   6   12   18   24");  //buttons
+
+            //avelacnel month stugumy
+            int months = scanner.nextInt();
+
+            System.out.println("This will be your deposit after " + months + " months.");
+            System.out.println(Deposit.calculateDeposit(initialDeposit, months));
+            System.out.println("Do you want to confirm this deposit?"); //buttons
+            System.out.println("1. Yes  2. No");
+
+            int n = scanner.nextInt();
+
+            switch (n) {
+                case 1:
+                    Deposit deposit = new Deposit(initialDeposit, months);
+                    //Managerov petqa avelana
+                    //Bank.addDeposit(user, deposit);
+                    flag = false;
+                    break;
+                case 2:
+                    System.out.println("Do you want to try another deposit conditions.");
+                    System.out.println("1. Yes  2. No");
+
+                    int m = scanner.nextInt();
+
+                    switch (m) {
+                        case 1 -> flag = true;
+                        case 2 -> flag = false;
+                        default -> System.out.println("Invalid option, try again");
+                    }
+                default: System.out.println("Invalid option, try again");
+                    break;
+            }
         }
     }
 
-    public void edit() {
+    public void unblockCard() {
+        System.out.print("Card number: ");
+        long cardNumber = scanner.nextLong();
+        System.out.print("Passport number: ");
+        String passportNumber = scanner.next();
 
-    }
+        boolean flag = false;
+        try {
+            flag = Bank.cardBelongsToUser(cardNumber, passportNumber);
+        } catch (CardNotFoundException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+        if(flag){
+            System.out.println("Do you want to reset your pin code?");
+            System.out.println("1. Yes  2. No");
 
-    public void removeUser() {
+            int m = scanner.nextInt();
 
-    }
-
-    public void addDeposit() {
-
-    }
-
-    public void otherManagerServices() {
-
+            switch (m) {
+                case 1:
+                    System.out.println("Enter new 4-digit pin code");
+                    short pinCode = scanner.nextShort();
+                    Bank.requestCardData(cardNumber).setPinCode(pinCode);
+                    Bank.requestCardData(cardNumber).setBlocked(false);
+                case 2:
+                    Bank.requestCardData(cardNumber).setBlocked(false);
+                default:
+                    System.out.println("Invalid option, try again");
+            }
+            System.out.println("Your card is unblocked.");
+        }
     }
 }
