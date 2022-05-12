@@ -50,6 +50,7 @@ public abstract class Card implements Serializable, Cloneable {
             System.out.println("Card is null");
             System.exit(0);
         }
+        this.type = card.type;
         this.cardName = card.cardName;
         this.pinCode = card.pinCode;
         this.cardNumber = card.cardNumber;
@@ -105,10 +106,9 @@ public abstract class Card implements Serializable, Cloneable {
            this.balance = balance;
     }
 
-    void setBlocked(boolean blocked) {
+    public void setBlocked(boolean blocked) {
         isBlocked = blocked;
     }
-
 
     @Override
     public String toString() {
@@ -143,6 +143,7 @@ public abstract class Card implements Serializable, Cloneable {
         return count <= 4;
     }
 
+    public abstract String getCardExtracts();
     public abstract boolean withdrawMoney(double money) throws CardIsBlockedException;
 
     public boolean transferMoney(double money) throws CardIsBlockedException {

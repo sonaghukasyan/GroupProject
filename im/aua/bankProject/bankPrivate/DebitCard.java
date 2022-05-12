@@ -1,5 +1,7 @@
 package im.aua.bankProject.bankPrivate;
 
+import java.time.LocalDateTime;
+
 public class DebitCard extends Card{
     public DebitCard() {
         super();
@@ -22,5 +24,9 @@ public class DebitCard extends Card{
             return true;
         }
         return false;
+    }
+
+    public String getCardExtracts(){
+        return this.toString() + "\nbalance: " + getBalance();
     }
 }

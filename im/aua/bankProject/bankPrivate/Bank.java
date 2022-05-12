@@ -2,6 +2,8 @@ package im.aua.bankProject.bankPrivate;
 
 import im.aua.bankProject.*;
 import im.aua.bankProject.exceptions.CardIsBlockedException;
+import im.aua.bankProject.exceptions.CardNotFoundException;
+import im.aua.bankProject.exceptions.InvalidPassportException;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -87,6 +89,20 @@ public class Bank {
         return bank.findCard(cardNumber);
     }
 
+    public static boolean cardBelongsToUser(long cardNumber,String passport, String code) throws Exception {
+        User user = Bank.requestUserData(passport,code);
+        if(user == null)
+            return false;
+
+        ArrayList<Card> cards = user.getCards();
+        for (Card card : cards) {
+            if (card.getCardNumber() == cardNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void blockCard(long cardNumber){
         bank = getOrSetBank();
         Card card = bank.findCard(cardNumber);
@@ -145,20 +161,10 @@ public class Bank {
         return cardNumber;
     }
 
-    /*
-    //user not found exception
-    public static boolean cardBelongsToUser (long cardNumber, String passportNumber) throws CardNotFoundException, InvalidPassportException {
-        if(!User.isPassportValid(passportNumber))
-                throw new InvalidPassportException("Not valid passport number");
+    public static void saveChanges(String code) throws Exception {
+        if(code != authenticationCode)
+            throw new Exception("Wrong authentication code.");
+        bank.database.save(bank.users);
+    }
 
-        User user = requestUserData(passportNumber);
-        if(user == null) return false;
-
-        for(Card card: user.getCards()){
-            if (card.getCardNumber() == cardNumber){
-                return true;
-            }
-        }
-        return false;
-    }*/
 }

@@ -22,23 +22,17 @@ public class UI{
             case 1:
                 clearConsole();
                 visitManager();
-                System.out.println("\033[H\033[2J");
                 start();
                 break;
             case 2:
-                System.out.println("\033[H\033[2J");
                 useATM();
-                System.out.println("\033[H\033[2J");
                 start();
                 break;
             case 3:
-                System.out.println("\033[H\033[2J");
                 useTelCell();
-                System.out.println("\033[H\033[2J");
                 start();
                 break;
             default:
-                System.out.println("\033[H\033[2J");
                 System.out.println("Invalid option");
                 start();
                 break;
@@ -47,18 +41,15 @@ public class UI{
 
     public void useATM() {
         ATM atm = createATM();
-        System.out.println("\033[H\033[2J");
         System.out.println("1.Balance Inquiry   2.Cash Withdrawal");
         int value = scanner.nextInt();
 
         try{
             switch (value) {
                 case 1:
-                    System.out.println("\033[H\033[2J");
                     System.out.println(atm.balanceInquiry());
                     break;
                 case 2:
-                    System.out.println("\033[H\033[2J");
                     System.out.println("Withdrawal amount: ");
                     double money = scanner.nextDouble();
 
@@ -143,36 +134,52 @@ public class UI{
             start();
     }
 
+    public void seeExtracts(){
+        System.out.println("Write card number: ");
+        long cardNumber = scanner.nextLong();
+
+        System.out.println("Write pin-code: ");
+        short pinCode = scanner.nextShort();
+
+        try{
+            System.out.println(Manager.seeExtracts(cardNumber,pinCode));
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+            start();
+        }
+    }
+
     public void visitManager() {
         System.out.println("Write corresponding letter.");
-        System.out.println("1.Add user  2.Create new Card  3.Add deposit  4.Unblock card");
+        System.out.println("1.Add user  2.Create new Card  3.Add deposit  " +
+                "4.Unblock card  5.See card extracts");
         int value = scanner.nextInt();
 
         switch (value){
             case 1:
-                System.out.println("\033[H\033[2J");
                 createUser();
-                System.out.println("\033[H\033[2J");
                 visitManager();
                 break;
             case 2:
-                System.out.println("\033[H\033[2J");
                 createCard();
                 break;
             case 3:
-                System.out.println("\033[H\033[2J");
-                addDeposit();
+                //addDeposit();
                 break;
             case 4:
-                System.out.println("\033[H\033[2J");
-                //unblockCard();
+                unblockCard();
+                break;
+            case 5:
+                seeExtracts();
+                break;
             default:
-                System.out.println("\033[H\033[2J");
                 System.out.println("Invalid letter");
                 start();
                 break;
         }
     }
+
 
     public User createUser() {
         System.out.print("Name: ");
@@ -202,7 +209,6 @@ public class UI{
 
         switch (value){
             case 2:
-                System.out.println("\033[H\033[2J");
                 return createUser();
             case 1:
                 System.out.print("Passport: ");
@@ -220,7 +226,6 @@ public class UI{
                     getUser();
                 }
             default:
-                System.out.println("\033[H\033[2J");
                 System.out.println("Invalid option, try again.");
                 return getUser();
         }
@@ -269,86 +274,49 @@ public class UI{
 
     }
 
-    public void addDeposit() {
-        User user = getUser();
-        System.out.println("You may get a deposit in amount of " + Deposit.MINIMUM + "-"+
-                Deposit.MAXIMUM +  "AMD");
-        boolean flag = true;
-        while (flag) {
-            System.out.println("How much initial deposit do you want?");
-
-            double initialDeposit = scanner.nextDouble();
-
-            System.out.println("For how many months do you want to keep the deposit?");
-            System.out.println("1   3   6   12   18   24");  //buttons
-
-            //avelacnel month stugumy
-            int months = scanner.nextInt();
-
-            System.out.println("This will be your deposit after " + months + " months.");
-            System.out.println(Deposit.calculateDeposit(initialDeposit, months));
-            System.out.println("Do you want to confirm this deposit?"); //buttons
-            System.out.println("1. Yes  2. No");
-
-            int n = scanner.nextInt();
-
-            switch (n) {
-                case 1:
-                    Deposit deposit = new Deposit(initialDeposit, months);
-                    //Managerov petqa avelana
-                    //Bank.addDeposit(user, deposit);
-                    flag = false;
-                    break;
-                case 2:
-                    System.out.println("Do you want to try another deposit conditions.");
-                    System.out.println("1. Yes  2. No");
-
-                    int m = scanner.nextInt();
-
-                    switch (m) {
-                        case 1 -> flag = true;
-                        case 2 -> flag = false;
-                        default -> System.out.println("Invalid option, try again");
-                    }
-                default: System.out.println("Invalid option, try again");
-                    break;
-            }
-        }
-    }
-/*
     public void unblockCard() {
-        System.out.print("Card number: ");
-        long cardNumber = scanner.nextLong();
+
         System.out.print("Passport number: ");
         String passportNumber = scanner.next();
 
-        boolean flag = false;
-        try {
-            flag = Bank.cardBelongsToUser(cardNumber, passportNumber);
-        } catch (CardNotFoundException e) {
-            System.out.println(e.getMessage());
-            System.exit(0);
-        }
-        if(flag){
-            System.out.println("Do you want to reset your pin code?");
-            System.out.println("1. Yes  2. No");
+        System.out.print("Card number: ");
+        long cardNumber = scanner.nextLong();
 
-            int m = scanner.nextInt();
-
-            switch (m) {
-                case 1:
-                    System.out.println("Enter new 4-digit pin code");
-                    short pinCode = scanner.nextShort();
-                    Bank.requestCardData(cardNumber).setPinCode(pinCode);
-                    Bank.requestCardData(cardNumber).setBlocked(false);
-                case 2:
-                    Bank.requestCardData(cardNumber).setBlocked(false);
-                default:
-                    System.out.println("Invalid option, try again");
-            }
-            System.out.println("Your card is unblocked.");
+        if(!Manager.cardBelongsToUser(cardNumber, passportNumber)){
+           System.out.println("User not found or/and user does not have " +
+                   "that card");
+           start();
         }
-    }*/
+
+        System.out.println("Do you want to reset your pin code?");
+        System.out.println("1. Yes  2. No");
+
+        int answer = scanner.nextInt();
+
+        switch (answer) {
+            case 1:
+                System.out.println("Enter new 4-digit pin code");
+                short pinCode = scanner.nextShort();
+                try{
+                    Manager.unblockCard(cardNumber);
+                }
+                catch (Exception e){
+                    System.out.println(e.getMessage());
+                }
+                break;
+            case 2:
+                try{
+                    Manager.unblockCard(cardNumber);
+                }
+                catch (Exception e){
+                    System.out.println(e.getMessage());
+                }
+               break;
+            default: System.out.println("Invalid option, try again");
+        }
+        System.out.println("Your card is unblocked.");
+    }
+
 
     public static void clearConsole() {
         System.out.print("\033[H\033[2J");
