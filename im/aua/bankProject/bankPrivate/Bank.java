@@ -127,8 +127,11 @@ public class Bank {
     public static boolean withdrawMoney(long cardNumber, double money) throws CardIsBlockedException {
         bank = getOrSetBank();
         Card card = bank.findCard(cardNumber);
-        if(card != null)
-           return card.withdrawMoney(money);
+        if(card != null){
+            boolean state = card.withdrawMoney(money);
+            bank.database.save(bank.users);
+            return state;
+        }
         return false;
     }
 

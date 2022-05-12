@@ -298,7 +298,8 @@ public class UI{
                 System.out.println("Enter new 4-digit pin code");
                 short pinCode = scanner.nextShort();
                 try{
-                    Manager.unblockCard(cardNumber);
+                    Manager.unblockCard(cardNumber,pinCode);
+                    System.out.println("Your card is unblocked.");
                 }
                 catch (Exception e){
                     System.out.println(e.getMessage());
@@ -307,6 +308,7 @@ public class UI{
             case 2:
                 try{
                     Manager.unblockCard(cardNumber);
+                    System.out.println("Your card is unblocked.");
                 }
                 catch (Exception e){
                     System.out.println(e.getMessage());
@@ -314,7 +316,6 @@ public class UI{
                break;
             default: System.out.println("Invalid option, try again");
         }
-        System.out.println("Your card is unblocked.");
     }
 
 
