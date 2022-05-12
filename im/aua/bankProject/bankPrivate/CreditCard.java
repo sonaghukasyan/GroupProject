@@ -1,15 +1,17 @@
-package im.aua.bankProject;
+package im.aua.bankProject.bankPrivate;
+
+import im.aua.bankProject.exceptions.CardIsBlockedException;
 
 import java.time.*;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-public class CreditCard extends Card{
+public class CreditCard extends Card implements Cloneable {
 
-    public static double MinInterestRate = 5;
-    public static double MinBalance = 50000;
-    public static int UnchargedDayCount = 10;
-    public static int ChargedDayCount = 10;
+    public static final double MinInterestRate = 5;
+    public static final double MinBalance = 50000;
+    public static final int UnchargedDayCount = 10;
+    public static final int ChargedDayCount = 10;
 
     private final double lineBalance;
     private double interestRate;
@@ -28,7 +30,7 @@ public class CreditCard extends Card{
     public CreditCard(String cardName, CardType type, short pinCode, double lineBalance) {
         super(cardName, type, pinCode);
 
-        if(lineBalance < MinInterestRate){
+        if(lineBalance < MinBalance){
             System.out.println("We do not give a credit card with" +
                     " initial balance less than " + MinBalance);
             System.exit(0);
@@ -41,6 +43,7 @@ public class CreditCard extends Card{
 
     public CreditCard(CreditCard card) {
         super(card);
+        setBalance(card.getBalance());
         this.debt = card.debt;
         this.interestRate = card.interestRate;
         this.withdrawDate = card.withdrawDate;
@@ -56,9 +59,15 @@ public class CreditCard extends Card{
     }
 
     @Override
-    public boolean transferMoney(double money) {
+    public boolean transferMoney(double money) throws CardIsBlockedException {
+        updateBlockState();
         if(super.transferMoney(money)){
-            debt -= money;
+            if (debt >= 0 && debt <= money) {
+                debt = 0;
+            }
+            else if(debt >= money){
+                debt -= money;
+            }
             return true;
         }
         return false;
@@ -66,6 +75,7 @@ public class CreditCard extends Card{
 
     @Override
     public boolean withdrawMoney(double money) throws CardIsBlockedException {
+        updateDebtAmount();
         updateBlockState();
 
         if(getIsBlocked()) {
@@ -98,6 +108,7 @@ public class CreditCard extends Card{
         if(withdrawDate == null) return;
 
         LocalDate now = LocalDate.now();
+        now = now.plusDays(9);
         if(withdrawDate.plusDays(UnchargedDayCount).compareTo(now) > 0 &&
            withdrawDate.plusDays(UnchargedDayCount + ChargedDayCount).compareTo(now) < 0){
 
@@ -105,11 +116,13 @@ public class CreditCard extends Card{
             debt = lineBalance - getBalance();
             debt += debt * Math.pow(1 + interestRate/(double)100,noOfDaysBetween);
         }
+        updateBlockState();
+        System.out.println(debt);
     }
 
-    public String getCardReport(){
+    public String getCardExtract(){
+        if(withdrawDate == null) return "no withdraw date";
         updateDebtAmount();
-        updateBlockState();
         LocalDate unchargedDeadline = withdrawDate.plusDays(UnchargedDayCount);
         LocalDate chargedDeadline = withdrawDate.plusDays(UnchargedDayCount + ChargedDayCount);
         String deadline;
@@ -124,4 +137,30 @@ public class CreditCard extends Card{
 
         return info;
     }
+
+    public CreditCard clone(){
+        return new CreditCard(this);
+    }
+
+   /* public static void main(String[] args) {
+        //String cardName, CardType type, short pinCode, double lineBalance
+        CreditCard c = new CreditCard("Sona Ghukasyan", CardType.CREDIT, (short)1111, (double) 100000);
+
+       try{
+           c.withdrawMoney(5000);
+       }
+       catch (Exception ex ){
+           System.out.println(ex.getMessage());
+       }
+
+        System.out.println(c.getCardExtract());
+
+        try{
+            c.withdrawMoney(1000);
+        }
+        catch (Exception ex ){
+            System.out.println(ex.getMessage());
+        }
+        System.out.println(c.getCardExtract());
+    }*/
 }

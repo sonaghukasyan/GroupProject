@@ -1,9 +1,14 @@
 package im.aua.bankProject;
 
-import java.util.Locale;
-import java.util.Objects;
+import im.aua.bankProject.bankPrivate.Card;
+import im.aua.bankProject.bankPrivate.CreditCard;
+import im.aua.bankProject.bankPrivate.DebitCard;
+import im.aua.bankProject.bankPrivate.User;
+import im.aua.bankProject.exceptions.*;
+import im.aua.bankProject.machines.ATM;
+import im.aua.bankProject.machines.Telcell;
+
 import java.util.Scanner;
-import java.util.stream.StreamSupport;
 
 public class UI{
     private Scanner scanner = new Scanner(System.in);
@@ -15,18 +20,21 @@ public class UI{
 
         switch (value){
             case 1:
-                System.out.println("\033[H\033[2J");
+                clearConsole();
                 visitManager();
+                System.out.println("\033[H\033[2J");
                 start();
                 break;
             case 2:
                 System.out.println("\033[H\033[2J");
                 useATM();
+                System.out.println("\033[H\033[2J");
                 start();
                 break;
             case 3:
                 System.out.println("\033[H\033[2J");
                 useTelCell();
+                System.out.println("\033[H\033[2J");
                 start();
                 break;
             default:
@@ -38,7 +46,6 @@ public class UI{
     }
 
     public void useATM() {
-
         ATM atm = createATM();
         System.out.println("\033[H\033[2J");
         System.out.println("1.Balance Inquiry   2.Cash Withdrawal");
@@ -95,6 +102,7 @@ public class UI{
                 System.out.println("Write pin code: ");
                 short pinCode = scanner.nextShort();
                 atm.verifyPinAndCard(pinCode);
+                break;
             }
             catch (CardIsBlockedException ex){
                 System.out.println(ex.getMessage());
@@ -111,18 +119,28 @@ public class UI{
         return atm;
     }
 
-
     public void useTelCell() {
         System.out.println("Write card number: ");
         long cardNumber = scanner.nextLong();
         System.out.println("Insert money: ");
         double money = scanner.nextDouble();
-        try{
-            Telcell.transferMoney(cardNumber,money);
+
+        System.out.println("Please note that telCell will deduct " +
+                Telcell.CREDIT_DEDUCTION + " drams for credit card and " +
+                Telcell.DEBIT_DEDUCTION + " drams for debit card transfers.\n" +
+                "Do you want to continue? : 1.Yes  2.No ");
+        int answer = scanner.nextInt();
+        if(answer == 1){
+            try{
+                System.out.println("Your balance: " +
+                        Telcell.transferMoney(cardNumber,money));
+            }
+            catch (CardException ex){
+                System.out.println(ex.getMessage());
+            }
         }
-        catch (Exception ex){
-            System.exit(0);
-        }
+        else
+            start();
     }
 
     public void visitManager() {
@@ -134,6 +152,7 @@ public class UI{
             case 1:
                 System.out.println("\033[H\033[2J");
                 createUser();
+                System.out.println("\033[H\033[2J");
                 visitManager();
                 break;
             case 2:
@@ -146,7 +165,7 @@ public class UI{
                 break;
             case 4:
                 System.out.println("\033[H\033[2J");
-                unblockCard();
+                //unblockCard();
             default:
                 System.out.println("\033[H\033[2J");
                 System.out.println("Invalid letter");
@@ -189,7 +208,7 @@ public class UI{
                 System.out.print("Passport: ");
                 String passport = scanner.next();
                 try{
-                    User user = Manager.verifyUser(passport);
+                    User user = Manager.getUserClone(passport);
                     if(user == null){
                         System.out.println("Not valid user, please create account");
                         return createUser();
@@ -207,7 +226,7 @@ public class UI{
         }
     }
 
-    public Card createCard() {
+    public void createCard() {
         User user = getUser();
         String cardName = user.getName() + " " + user.getSurname();
 
@@ -222,7 +241,7 @@ public class UI{
             break;
         }
 
-        System.out.print("Card Type: 1.Debit Card 2.Credit Card");
+        System.out.println("Card Type: 1.Debit Card 2.Credit Card");
         int value = scanner.nextInt();
 
         Card.CardType type;
@@ -245,9 +264,9 @@ public class UI{
                     break;
             }
         }
-        Manager.AddCard(user,card);
-        System.out.println("Your card info: \n" + card.toString());
-        return card;
+        if(Manager.AddCard(user.getPassportNumber(),card))
+                  System.out.println("Your card info: \n" + card);
+
     }
 
     public void addDeposit() {
@@ -296,7 +315,7 @@ public class UI{
             }
         }
     }
-
+/*
     public void unblockCard() {
         System.out.print("Card number: ");
         long cardNumber = scanner.nextLong();
@@ -329,5 +348,10 @@ public class UI{
             }
             System.out.println("Your card is unblocked.");
         }
+    }*/
+
+    public static void clearConsole() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }

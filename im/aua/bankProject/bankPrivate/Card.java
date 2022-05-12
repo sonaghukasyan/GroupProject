@@ -1,11 +1,11 @@
-package im.aua.bankProject;
+package im.aua.bankProject.bankPrivate;
+
+import im.aua.bankProject.exceptions.CardIsBlockedException;
 
 import java.io.Serializable;
-import java.time.Year;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 
-public abstract class Card implements Serializable {
+public abstract class Card implements Serializable, Cloneable {
 
     public enum CardType{
         DEBIT,
@@ -15,7 +15,7 @@ public abstract class Card implements Serializable {
     private String cardName;
     private short pinCode;
     private long cardNumber;
-    private Date expireDate;
+    private LocalDate expireDate;
     private boolean isBlocked;
     private double balance;
 
@@ -23,7 +23,8 @@ public abstract class Card implements Serializable {
         cardName = "No name";
         pinCode =  0;
         cardNumber = 0;
-        expireDate = new Date(Year.now().getValue() + 2, Calendar.FEBRUARY, 1);
+        expireDate = LocalDate.now();
+        expireDate = expireDate.plusYears(2);
         isBlocked = false;
         type = CardType.DEBIT;
     }
@@ -34,11 +35,13 @@ public abstract class Card implements Serializable {
             System.out.println("Card name or pin code is null");
             System.exit(0);
         }
+        this.type = type;
         this.cardName = cardName;
         this.pinCode = pinCode;
         this.cardNumber = Bank.generateNewCardNumber();
         this.isBlocked = false;
-        this.expireDate = new Date( Calendar.getInstance().get(Calendar.YEAR) + 2, Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DATE));
+        expireDate = LocalDate.now();
+        expireDate = expireDate.plusYears(2);
     }
 
     public Card(Card card)
@@ -66,10 +69,8 @@ public abstract class Card implements Serializable {
         return this.cardName;
     }
 
-    public Date getExpireDate(){
-        return new Date(this.expireDate.getYear(),
-                this.expireDate.getMonth(),
-                this.expireDate.getDay());
+    public LocalDate getExpireDate(){
+        return this.expireDate;
     }
 
     public double getBalance() {
@@ -79,6 +80,8 @@ public abstract class Card implements Serializable {
     public boolean getIsBlocked() {
         return this.isBlocked;
     }
+
+    public CardType getCardType(){ return this.type; }
 
     //mutators
     public void setCardName(String cardName) {
@@ -93,15 +96,16 @@ public abstract class Card implements Serializable {
         this.pinCode = pinCode;
     }
 
-    public void setExpireDate(Date expireDate) {
+    public void setExpireDate(LocalDate expireDate) {
         this.expireDate = expireDate;
     }
 
-    public void setBalance(double balance) {
-        this.balance = balance;
+    void setBalance(double balance) {
+        if(balance >= 0)
+           this.balance = balance;
     }
 
-    public void setBlocked(boolean blocked) {
+    void setBlocked(boolean blocked) {
         isBlocked = blocked;
     }
 
@@ -141,11 +145,25 @@ public abstract class Card implements Serializable {
 
     public abstract boolean withdrawMoney(double money) throws CardIsBlockedException;
 
-    public boolean transferMoney(double money){
-            if(money >= 0){
-                balance += money;
-                return true;
-            }
-            return false;
+    public boolean transferMoney(double money) throws CardIsBlockedException {
+        if(getIsBlocked())
+            throw new CardIsBlockedException("This card is blocked." +
+                    "and hence you cannot transfer money");
+
+        if(money >= 0){
+            balance += money;
+            return true;
+        }
+        return false;
+    }
+
+    public Card clone(){
+        try {
+            Card copy = (Card) super.clone();
+            return copy;
+        }
+        catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

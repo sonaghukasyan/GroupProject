@@ -1,10 +1,11 @@
-package im.aua.bankProject;
+package im.aua.bankProject.bankPrivate;
 
+import im.aua.bankProject.Deposit;
+
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
 
-public class User{
+public class User implements Serializable {
     private ArrayList<Card> cards;
     private String name;
     private String surname;
@@ -37,7 +38,7 @@ public class User{
 
     public User(User user){
         if(user == null) {
-            System.out.println("Card is null");
+            System.out.println("User cannot be null");
             System.exit(0);
         }
         this.name = user.name;
@@ -50,15 +51,6 @@ public class User{
         }
     }
 
-    //add mutators,appendCard,toString,equals, copy, no arg
-    //accessors
-    public ArrayList<Card> getCards() {
-        ArrayList<Card> copyCards = new ArrayList<Card>();
-        for(Card card: cards){
-            copyCards.add(card.clone());
-        }
-        return copyCards;
-    }
     public String getName() {
         return name;
     }
@@ -80,14 +72,35 @@ public class User{
         this.surname = surname;
     }
 
-    public void addCard(Card card) {
-        if(card != null)
-           this.cards.add(card.clone());
+
+    //no-modifier as it gives shallow copy
+    //only to bank private classes.
+    ArrayList<Card> getCards() {
+        return cards;
+    }
+
+    // no-modifier as it only bank-private classes can add
+    //new cards.
+     boolean addCard(Card card) {
+        if(card != null){
+            this.cards.add(card.clone());
+            return true;
+        }
+        return false;
     }
 
     public static boolean isPassportValid(String passport){
-        return true;
-        //logika greq
+        if (passport.charAt(0) != 'A') return false;
+        if (passport.charAt(1) != 'P') return false;
+        int number;
+
+        try{
+            number = Integer.parseInt(passport.substring(2));
+        }
+        catch (NumberFormatException e){
+            return false;
+        }
+        return number > 999999 && number < 10000000;
     }
 
     public ArrayList<Deposit> getDeposits() {
@@ -96,5 +109,13 @@ public class User{
             copyDeposits.add(new Deposit(deposit));
         }
         return copyDeposits;
+    }
+
+    @Override
+    public String toString() {
+        return "User{ " +
+                "Name: " + name +
+                "Surname: " + surname +
+                "PassportNumber: " + passportNumber + "}";
     }
 }

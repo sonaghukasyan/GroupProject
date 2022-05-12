@@ -1,4 +1,4 @@
-package im.aua.bankProject;
+package im.aua.bankProject.exceptions;
 
 public class InvalidPincodeException extends CardException{
     public InvalidPincodeException(){

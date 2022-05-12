@@ -1,4 +1,4 @@
-package im.aua.bankProject;
+package im.aua.bankProject.bankPrivate;
 
 public class DebitCard extends Card{
     public DebitCard() {
@@ -15,20 +15,9 @@ public class DebitCard extends Card{
 
     @Override
     public boolean withdrawMoney(double money) {
-        if(getBalance() >= money){
+        if(getBalance() >= money && money >= 0){
             double balance = getBalance();
             balance -= money;
-            setBalance(balance);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean transferMoney(double money) {
-        if(money >= 0){
-            double balance = getBalance();
-            balance += money;
             setBalance(balance);
             return true;
         }
