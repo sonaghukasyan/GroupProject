@@ -1,6 +1,4 @@
-package im.aua.bankProject.bankPrivate;
-
-import java.time.LocalDateTime;
+package im.aua.bankProject.core.bankPrivate;
 
 public class DebitCard extends Card{
     public DebitCard() {

@@ -1,14 +1,16 @@
-package im.aua.bankProject;
+package im.aua.bankProject.ui;
 
-import im.aua.bankProject.bankPrivate.Card;
-import im.aua.bankProject.bankPrivate.CreditCard;
-import im.aua.bankProject.bankPrivate.DebitCard;
-import im.aua.bankProject.bankPrivate.User;
-import im.aua.bankProject.exceptions.*;
-import im.aua.bankProject.machines.ATM;
-import im.aua.bankProject.machines.Telcell;
+import im.aua.bankProject.core.bankPrivate.*;
+import im.aua.bankProject.core.Manager;
+import im.aua.bankProject.core.exceptions.*;
+import im.aua.bankProject.core.machines.ATM;
+import im.aua.bankProject.core.machines.Telcell;
 
+import java.util.Arrays;
 import java.util.Scanner;
+
+import static im.aua.bankProject.core.bankPrivate.Deposit.MAXIMUM;
+import static im.aua.bankProject.core.bankPrivate.Deposit.MINIMUM;
 
 public class UI{
     private Scanner scanner = new Scanner(System.in);
@@ -20,7 +22,6 @@ public class UI{
 
         switch (value){
             case 1:
-                clearConsole();
                 visitManager();
                 start();
                 break;
@@ -153,7 +154,7 @@ public class UI{
     public void visitManager() {
         System.out.println("Write corresponding letter.");
         System.out.println("1.Add user  2.Create new Card  3.Add deposit  " +
-                "4.Unblock card  5.See card extracts");
+                "4.Unblock card  5.See card extracts 6.See deposit");
         int value = scanner.nextInt();
 
         switch (value){
@@ -165,13 +166,16 @@ public class UI{
                 createCard();
                 break;
             case 3:
-                //addDeposit();
+                addDeposit();
                 break;
             case 4:
                 unblockCard();
                 break;
             case 5:
                 seeExtracts();
+                break;
+            case 6:
+                seeDeposit();
                 break;
             default:
                 System.out.println("Invalid letter");
@@ -318,9 +322,86 @@ public class UI{
         }
     }
 
+    public void addDeposit() {
+        User user = getUser();
 
-    public static void clearConsole() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+        System.out.println("You may get a deposit in amount of " + MINIMUM + "-"+
+                MAXIMUM +  "AMD");
+        boolean flag = true;
+        while (flag) {
+            System.out.println("How much initial deposit do you want?");
+
+            double initialDeposit = scanner.nextDouble();
+
+            System.out.println("For how many months do you want to keep the deposit?");
+            System.out.println(Arrays.toString(Deposit.monthsArray));
+
+            int months = scanner.nextInt();
+            makeDeposit(initialDeposit,months);
+
+            if(!Deposit.isValidMonth(months)) return;
+
+            System.out.println("\nDo you want to confirm this deposit?"); //buttons
+            System.out.println("1. Yes  2. No");
+
+            int n = scanner.nextInt();
+
+            switch (n) {
+                case 1:
+                    Deposit deposit = new Deposit(initialDeposit, months);
+                    Manager.addDeposit(user.getPassportNumber(), deposit);
+                    System.out.println(deposit);
+                    flag = false;
+                    break;
+                case 2:
+                    System.out.println("Do you want to try another deposit conditions.");
+                    System.out.println("1. Yes  2. No");
+
+                    int m = scanner.nextInt();
+
+                    switch (m) {
+                        case 1 : flag = true; break;
+                        case 2 : flag = false; break;
+                        default : System.out.println("Invalid option, try again");
+                                  start();
+                                  break;
+                    }
+                    break;
+                default: System.out.println("Invalid option, try again");
+                    break;
+            }
+        }
+    }
+
+    public void seeDeposit() {
+        System.out.println("Write passport number: ");
+        String passportNumber = scanner.next();
+
+        System.out.println("Write deposit number: ");
+        int depositNumber = scanner.nextInt();
+
+        try{
+            System.out.println(Manager.seeDeposit(depositNumber, passportNumber));
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+            start();
+        }
+    }
+
+    public void makeDeposit(double depositAmount, int months) {
+        if(!(depositAmount >= MINIMUM && depositAmount <= MAXIMUM)){
+            System.out.println("The bank does not give a deposit for that amount of money.");
+            start();
+        }
+        if(!(Deposit.isValidMonth(months))){
+            System.out.println("The bank does not give a deposit for that amount of months.");
+            start();
+        }
+
+        double balance = Deposit.finalDeposit(depositAmount, months);
+
+        System.out.printf("Deposit is successfully approved." +"\n You can take your balance after " + months +
+                " months. " + "It will be " + "%.2f", balance);
     }
 }

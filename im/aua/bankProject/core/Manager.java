@@ -1,10 +1,10 @@
-package im.aua.bankProject;
+package im.aua.bankProject.core;
 
-import im.aua.bankProject.bankPrivate.*;
-import im.aua.bankProject.exceptions.CardIsBlockedException;
-import im.aua.bankProject.exceptions.CardNotFoundException;
-import im.aua.bankProject.exceptions.InvalidPassportException;
-import im.aua.bankProject.exceptions.InvalidPincodeException;
+import im.aua.bankProject.core.bankPrivate.*;
+import im.aua.bankProject.core.exceptions.CardIsBlockedException;
+import im.aua.bankProject.core.exceptions.CardNotFoundException;
+import im.aua.bankProject.core.exceptions.InvalidPassportException;
+import im.aua.bankProject.core.exceptions.InvalidPincodeException;
 
 public class Manager {
 
@@ -77,6 +77,7 @@ public class Manager {
             return false;
 
         card.setPinCode(newPincode);
+        Bank.saveChanges(authenticationCode);
         return true;
     }
 
@@ -99,11 +100,39 @@ public class Manager {
         }
 
         card.setBlocked(false);
+        Bank.saveChanges(authenticationCode);
         return card;
 
     }
 
-    public static boolean addDeposit(){
+    public static boolean addDeposit(String passport, Deposit deposit){
+        if(!User.isPassportValid(passport)) return false;
+
+        try{
+            User user = Bank.requestUserData(passport,authenticationCode);
+            if (user == null) return false;
+            Bank.addDeposit(user,deposit, authenticationCode);
+            return true;
+        } catch (Exception ignored) {}
+
+        return false;
+    }
+
+    public static String seeDeposit(int depositNumber, String passport) throws Exception {
+        Deposit deposit = Bank.requestDepositData(depositNumber,authenticationCode);
+
+        if(deposit == null || !depositBelongsToUser(depositNumber, passport))
+            throw new im.aua.bankProject.exceptions.DepositNotFoundException();
+        String info = deposit.getDepositExtracts();
+        Bank.saveChanges(authenticationCode);
+        return info;
+    }
+
+    public static boolean depositBelongsToUser(int depositNumber, String passport) {
+        try{
+            return Bank.depositBelongsToUser(depositNumber, passport,authenticationCode);
+        }
+        catch (Exception ignored) {}
         return false;
     }
 }

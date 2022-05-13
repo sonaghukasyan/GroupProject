@@ -1,4 +1,4 @@
-package im.aua.bankProject.exceptions;
+package im.aua.bankProject.core.exceptions;
 
 public class InvalidPassportException extends Exception{
 

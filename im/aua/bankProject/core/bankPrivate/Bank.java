@@ -1,9 +1,6 @@
-package im.aua.bankProject.bankPrivate;
+package im.aua.bankProject.core.bankPrivate;
 
-import im.aua.bankProject.*;
-import im.aua.bankProject.exceptions.CardIsBlockedException;
-import im.aua.bankProject.exceptions.CardNotFoundException;
-import im.aua.bankProject.exceptions.InvalidPassportException;
+import im.aua.bankProject.core.exceptions.CardIsBlockedException;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -15,18 +12,11 @@ public class Bank {
 
     private BankDatabase database;
     private ArrayList<User> users;
-    //karoxa darna new Bank()?
     private static Bank bank = new Bank();
 
     private Bank() {
         this.database = new BankDatabase();
         this.users = database.read();
-    }
-
-    private static Bank getOrSetBank() {
-        if (bank == null)
-            bank = new Bank();
-        return bank;
     }
 
     //Only manager can ask to add new User via authentication code
@@ -35,7 +25,6 @@ public class Bank {
         if(code != authenticationCode)
             throw new Exception("Wrong authentication code.");
 
-        bank = getOrSetBank();
         if (user != null) {
             bank.users.add(new User(user));
             bank.database.save(bank.users);
@@ -48,7 +37,6 @@ public class Bank {
         if(code != authenticationCode)
             throw new Exception("Your authentication code is wrong");
 
-        bank = getOrSetBank();
         for (User user : bank.users) {
             if (user.getPassportNumber().equals(passport))
                 return user;
@@ -57,7 +45,6 @@ public class Bank {
     }
 
     public static Card.CardType verifyCardAndGetType(long cardNumber){
-        bank = getOrSetBank();
         Card card = bank.findCard(cardNumber);
         if(bank.findCard(cardNumber) == null)
             return null;
@@ -72,7 +59,6 @@ public class Bank {
     }
 
     public static double transferMoney(long cardNumber,double money) throws CardIsBlockedException {
-        bank = getOrSetBank();
         Card card = bank.findCard(cardNumber);
         if(card != null){
             card.transferMoney(money);
@@ -85,7 +71,6 @@ public class Bank {
         if(code != authenticationCode)
             throw new Exception("Your authentication code is wrong");
 
-        bank = getOrSetBank();
         return bank.findCard(cardNumber);
     }
 
@@ -104,7 +89,6 @@ public class Bank {
     }
 
     public static void blockCard(long cardNumber){
-        bank = getOrSetBank();
         Card card = bank.findCard(cardNumber);
         if(card != null){
             card.setBlocked(true);
@@ -125,7 +109,6 @@ public class Bank {
     }
 
     public static boolean withdrawMoney(long cardNumber, double money) throws CardIsBlockedException {
-        bank = getOrSetBank();
         Card card = bank.findCard(cardNumber);
         if(card != null){
             boolean state = card.withdrawMoney(money);
@@ -139,7 +122,6 @@ public class Bank {
         if(code != authenticationCode)
             throw new Exception("Wrong authentication code.");
 
-        bank = getOrSetBank();
         if (card != null) {
             user.addCard(card);
             bank.database.save(bank.users);
@@ -149,7 +131,7 @@ public class Bank {
     }
 
     public static long generateNewCardNumber() {
-        getOrSetBank();
+        //getOrSetBank();
         Random random = new Random();
         long cardNumber = random.nextLong(1000000000000000L, 10000000000000000L);
 
@@ -170,4 +152,67 @@ public class Bank {
         bank.database.save(bank.users);
     }
 
+    public static Deposit requestDepositData(int depositNumber,String code) throws Exception {
+        if(code != authenticationCode)
+            throw new Exception("Your authentication code is wrong");
+
+       //bank = getOrSetBank();
+        return bank.findDeposit(depositNumber);
+    }
+
+    public static boolean depositBelongsToUser(int depositNumber,String passport, String code) throws Exception {
+        User user = Bank.requestUserData(passport,code);
+        if(user == null)
+            return false;
+
+        ArrayList<Deposit> deposits = user.getDeposits();
+        for (Deposit deposit : deposits) {
+            if (deposit.getDepositNumber() == depositNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Deposit findDeposit(int depositNumber){
+        for (User user : bank.users) {
+            ArrayList<Deposit> deposits = user.getDeposits();
+            for (Deposit deposit : deposits) {
+                if (deposit.getDepositNumber() == depositNumber) {
+                    return deposit;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean addDeposit(User user, Deposit deposit, String code) throws Exception {
+        if(code != authenticationCode)
+            throw new Exception("Wrong authentication code.");
+
+        //bank = getOrSetBank();
+        if (deposit != null) {
+            user.addDeposit(deposit);
+            bank.database.save(bank.users);
+            return true;
+        }
+        return false;
+    }
+
+    public static int generateNewDepositNumber() {
+        //getOrSetBank();
+        Random random = new Random();
+        int depositNumber = random.nextInt(1000000, 10000000);
+        for (User user : bank.users) {
+            ArrayList<Deposit> deposits = user.getDeposits();
+            if(deposits != null) {
+                for (Deposit deposit : deposits) {
+                    if (deposit.getDepositNumber() == depositNumber) {
+                        generateNewDepositNumber();
+                    }
+                }
+            }
+        }
+        return depositNumber;
+    }
 }

@@ -1,4 +1,4 @@
-package im.aua.bankProject.exceptions;
+package im.aua.bankProject.core.exceptions;
 
 public class CardIsBlockedException extends CardException{
     public CardIsBlockedException(){

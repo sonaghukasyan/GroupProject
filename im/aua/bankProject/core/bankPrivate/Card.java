@@ -1,6 +1,6 @@
-package im.aua.bankProject.bankPrivate;
+package im.aua.bankProject.core.bankPrivate;
 
-import im.aua.bankProject.exceptions.CardIsBlockedException;
+import im.aua.bankProject.core.exceptions.CardIsBlockedException;
 
 import java.io.Serializable;
 import java.time.LocalDate;

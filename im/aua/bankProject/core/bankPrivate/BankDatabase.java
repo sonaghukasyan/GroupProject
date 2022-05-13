@@ -1,6 +1,4 @@
-package im.aua.bankProject;
-
-import im.aua.bankProject.bankPrivate.User;
+package im.aua.bankProject.core.bankPrivate;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -50,4 +48,3 @@ public class BankDatabase {
         return users;
     }
 }
-//2642356416225564

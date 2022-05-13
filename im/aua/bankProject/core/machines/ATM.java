@@ -1,11 +1,11 @@
-package im.aua.bankProject.machines;
+package im.aua.bankProject.core.machines;
 
-import im.aua.bankProject.exceptions.CardException;
-import im.aua.bankProject.exceptions.CardIsBlockedException;
-import im.aua.bankProject.exceptions.CardNotFoundException;
-import im.aua.bankProject.exceptions.InvalidPincodeException;
-import im.aua.bankProject.bankPrivate.Bank;
-import im.aua.bankProject.bankPrivate.Card;
+import im.aua.bankProject.core.exceptions.CardException;
+import im.aua.bankProject.core.exceptions.CardIsBlockedException;
+import im.aua.bankProject.core.exceptions.CardNotFoundException;
+import im.aua.bankProject.core.exceptions.InvalidPincodeException;
+import im.aua.bankProject.core.bankPrivate.Bank;
+import im.aua.bankProject.core.bankPrivate.Card;
 
 public class ATM {
     private int tries;

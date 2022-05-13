@@ -1,6 +1,4 @@
-package im.aua.bankProject.bankPrivate;
-
-import im.aua.bankProject.Deposit;
+package im.aua.bankProject.core.bankPrivate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,18 +16,21 @@ public class User implements Serializable {
         name = "no name";
         surname = "no surname";
         passportNumber = "no passport number";
+        deposits = new ArrayList<>();
     }
 
     public User(String name, String surname, String passportNumber){
         this.name = name;
         this.surname = surname;
         this.passportNumber = passportNumber;
-        this.cards = new ArrayList<Card>();;
+        this.cards = new ArrayList<Card>();
+        this.deposits = new ArrayList<>();
     }
 
     public User(String name, String surname, String passportNumber, ArrayList<Card> cards){
         this(name,surname,passportNumber);
         this.cards = new ArrayList<Card>();
+        this.deposits = new ArrayList<>();
         //null check for given cards.
         for(Card card: cards){
             this.cards.add(card);
@@ -48,6 +49,10 @@ public class User implements Serializable {
         //null check for given cards.
         for(Card card: cards){
             this.cards.add(card);
+        }
+        this.deposits = new ArrayList<Deposit>();
+        for(Deposit deposit: deposits){
+            this.deposits.add(deposit);
         }
     }
 
@@ -103,19 +108,30 @@ public class User implements Serializable {
         return number > 999999 && number < 10000000;
     }
 
-    public ArrayList<Deposit> getDeposits() {
-        ArrayList<Deposit> copyDeposits = new ArrayList<>();
-        for(Deposit deposit: deposits) {
-            copyDeposits.add(new Deposit(deposit));
-        }
-        return copyDeposits;
-    }
-
     @Override
     public String toString() {
         return "User{ " +
                 "Name: " + name +
                 "Surname: " + surname +
                 "PassportNumber: " + passportNumber + "}";
+    }
+
+    boolean addDeposit(Deposit deposit) {
+        if(deposit != null){
+            this.deposits.add(new Deposit(deposit));
+            return true;
+        }
+        return false;
+    }
+
+    public ArrayList<Deposit> getDeposits() {
+        ArrayList<Deposit> copyDeposits = new ArrayList<>();
+        if(deposits == null) return null;
+        else {
+            for (Deposit deposit : deposits) {
+                copyDeposits.add(new Deposit(deposit));
+            }
+            return copyDeposits;
+        }
     }
 }
