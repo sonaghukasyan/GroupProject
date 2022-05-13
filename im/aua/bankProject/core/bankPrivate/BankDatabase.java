@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class BankDatabase {
+    //we know that path should be relative, but there was a problem.
     public static String PATH = "C:\\Users\\User\\GroupProject\\database.txt";
 
     public void save(ArrayList<User> users){
