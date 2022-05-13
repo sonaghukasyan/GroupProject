@@ -5,6 +5,13 @@ import im.aua.bankProject.core.exceptions.CardIsBlockedException;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * The <code>Bank</code> class represents bank as a storage for its users' data.
+ * An object of type <code>Bank</code> contains one instance variable of type
+ * <code>ArrayList</code> with base type <code>User</code> containing the users,
+ * one instance variable of type <code> Bank </code>.
+ */
+
 public class Bank {
     //this field is to give data only to the manager that
     //has the same authentication code.
@@ -18,7 +25,13 @@ public class Bank {
         this.database = new BankDatabase();
         this.users = database.read();
     }
-
+    /**
+     * This method adds <code>User</code> user to the bank's users
+     * using the specified <code>User</code> object.
+     *
+     * @param user     the <code>User</code> object
+     * @return         <code>boolean</code>
+     */
     //Only manager can ask to add new User via authentication code
     //and bank rely on the fact that manager will pass valid users.
     public static boolean addUser(User user, String code) throws Exception {
@@ -32,6 +45,16 @@ public class Bank {
         }
         return false;
     }
+
+    /**
+     * Returns the <code>User</code> user with the specified passport number,
+     * checks
+     *  authentication code.
+     *
+     *  @param code     the <code>String</code> code
+     * @param passport       the <code>String</code> passport number
+     * @return               the <code>Card</code> object
+     */
 
     public static User requestUserData(String passport,String code) throws Exception {
         if(code != authenticationCode)
@@ -66,7 +89,14 @@ public class Bank {
         }
         return card.getBalance();
     }
-
+    /**
+     * Returns the <code>Card</code> card with the specified card number ,checks
+     * authentication code.
+     *
+     * @param cardNumber     the <code>long</code> card number
+     * @param code           the <code>String</code> code
+     * @return               the <code>Card</code> object
+     */
     public static Card requestCardData(long cardNumber,String code) throws Exception {
         if(code != authenticationCode)
             throw new Exception("Your authentication code is wrong");
@@ -118,6 +148,17 @@ public class Bank {
         return false;
     }
 
+    /**
+     * This method adds <code>Card</code> card to <code>User</code>
+     * user's cards using the specified <code>User</code> and <code>Card</code> objects,
+     * checks authentication code.
+     *
+     *@param code           the <code>String</code> code
+     * @param user     the <code>User</code> object
+     * @param card     the <code>Card</code> object
+     * @return         <code>boolean</code>
+     */
+
     public static boolean addCard(User user, Card card, String code) throws Exception {
         if(code != authenticationCode)
             throw new Exception("Wrong authentication code.");
@@ -130,8 +171,12 @@ public class Bank {
         return false;
     }
 
+    /**
+     * Returns a newly generated <code>long</code> card number.
+     *
+     * @return            a <code>long</code> card number
+     */
     public static long generateNewCardNumber() {
-        //getOrSetBank();
         Random random = new Random();
         long cardNumber = random.nextLong(1000000000000000L, 10000000000000000L);
 
@@ -151,12 +196,18 @@ public class Bank {
             throw new Exception("Wrong authentication code.");
         bank.database.save(bank.users);
     }
-
+    /**
+     * Returns the <code>Deposit</code> deposit with the specified deposit number,checks
+     * authentication code.
+     *
+     * @param code           the <code>String</code> code
+     * @param depositNumber     the <code>int</code> deposit number
+     * @return                  the <code>Deposit</code> object
+     */
     public static Deposit requestDepositData(int depositNumber,String code) throws Exception {
         if(code != authenticationCode)
             throw new Exception("Your authentication code is wrong");
 
-       //bank = getOrSetBank();
         return bank.findDeposit(depositNumber);
     }
 
@@ -190,7 +241,6 @@ public class Bank {
         if(code != authenticationCode)
             throw new Exception("Wrong authentication code.");
 
-        //bank = getOrSetBank();
         if (deposit != null) {
             user.addDeposit(deposit);
             bank.database.save(bank.users);
@@ -200,7 +250,6 @@ public class Bank {
     }
 
     public static int generateNewDepositNumber() {
-        //getOrSetBank();
         Random random = new Random();
         int depositNumber = random.nextInt(1000000, 10000000);
         for (User user : bank.users) {

@@ -1,4 +1,4 @@
-package im.aua.bankProject.exceptions;
+package im.aua.bankProject.core.exceptions;
 
 /**
  * The <code>DepositNotFoundException</code> class represents an exception which is thrown

@@ -5,6 +5,19 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
+/**
+ * The <code>Deposit</code> class represents the deposits.
+ * It contains two final constants of type <code>int</code> representing the
+ * minimum and maximum amount of initial money for the deposit.
+ * An object of type <code>Deposit</code> contains two instance variables of type
+ * <code>double</code> representing the initial amount of money and the current balance,
+ * one instance variable of type <code>int</code> representing the number of months that
+ * the deposit is taken for, one instance variable of type <code>Date</code>
+ * representing the creation date of the deposit, and one final constant of array
+ * type with <code>int</code> base type representing the number of months allowed
+ * to take a deposit.
+ */
+
 public class Deposit implements Serializable {
     public static final int MINIMUM = 1000000;
     public static final int MAXIMUM = 300000000;
@@ -17,6 +30,10 @@ public class Deposit implements Serializable {
     private double balance;
     private double interest;
 
+    /**
+     * Constructs a newly allocated <code>Deposit</code> object with default values of
+     * the instance variables.
+     */
     public Deposit() {
         initialAmount = 0;
         months = 0;
@@ -26,6 +43,13 @@ public class Deposit implements Serializable {
         depositNumber = Bank.generateNewDepositNumber();
     }
 
+    /**
+     * Constructs a newly allocated <code>Deposit</code> object with the specified initial
+     * amount of money of type <code>double</code> and the number of months of type  <code>int</code>.
+     *
+     * @param initialAmount           the <code>double</code> initial money
+     * @param months                   the <code>int</code> number of months
+     */
     public Deposit(double initialAmount, int months) {
         if (initialAmount >= MINIMUM && initialAmount <= MAXIMUM && isValidMonth(months)) {
             this.initialAmount = initialAmount;
@@ -36,7 +60,12 @@ public class Deposit implements Serializable {
             calculateInterest(months);
         }
     }
-
+    /**
+     * Constructs a newly allocated <code>Deposit</code> object that
+     * represents the same deposit as the specified <code>Deposit</code> object.
+     *
+     * @param deposit      the <code>Deposit</code> object
+     */
     public Deposit(Deposit deposit){
         if(deposit == null)
             System.out.println("sxaly stexica");
@@ -48,10 +77,6 @@ public class Deposit implements Serializable {
         calculateInterest(months);
     }
 
-    public double getInitialAmount() {
-        return initialAmount;
-    }
-
     public int getDepositNumber() {
         return depositNumber;
     }
@@ -60,33 +85,11 @@ public class Deposit implements Serializable {
         return months;
     }
 
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
 
     public double getBalance() {
         return balance;
     }
 
-    public void setMonths(int months) {
-        this.months = months;
-    }
-
-    public void setInitialAmount(double initialDeposit) {
-        this.initialAmount = initialDeposit;
-    }
-
-    public void setCreationDate(LocalDateTime creationDateMonth) {
-        this.creationDate = creationDateMonth;
-    }
-
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
-
-    public void setDepositNumber(int depositNumber) {
-        this.depositNumber = depositNumber;
-    }
 
     public boolean equals(Object o) {
         if (o == null || o.getClass() != this.getClass()) return false;
@@ -98,6 +101,12 @@ public class Deposit implements Serializable {
                     && Objects.equals(creationDate, deposit.creationDate);
         }
     }
+
+    /**
+     * Returns the string representation of the deposit
+     *
+     * @return      the <code>String</code> deposit
+     */
 
     @Override
     public String toString() {
@@ -111,6 +120,14 @@ public class Deposit implements Serializable {
                 '}';
     }
 
+    /**
+     * This method calculates the amount of money at the end of the specified
+     * <code>int</code> number of months
+     *
+     *
+     * @param months               the <code>int</code> number of months
+     * @return                     the <code>double</code> final amount of money
+     */
     private double calculateInterest(int months){
         this.interest = 0;
         switch (months) {
@@ -138,7 +155,13 @@ public class Deposit implements Serializable {
     public double calculateDeposit(double depositAmount, int months){
         return depositAmount + months*((depositAmount * interest) / 100);
     }
-
+    /**
+     * This method checks whether the specified <code>int</code> number
+     * of months is valid or not.
+     *
+     * @param months               the <code>int</code> number of months
+     * @return                     <code>boolean</code>
+     */
     public static boolean isValidMonth(int months){
         for(int i = 0; i < Deposit.monthsArray.length; i++){
             if(months == Deposit.monthsArray[i]){

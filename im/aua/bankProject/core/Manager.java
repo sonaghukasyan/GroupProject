@@ -6,10 +6,21 @@ import im.aua.bankProject.core.exceptions.CardNotFoundException;
 import im.aua.bankProject.core.exceptions.InvalidPassportException;
 import im.aua.bankProject.core.exceptions.InvalidPincodeException;
 
+/**
+ * The <code>Manager</code> class represents the manager in the bank acting
+ * as mediator between the users and the bank.
+ */
 public class Manager {
 
     private static final String authenticationCode = "AD55_aks_LAD6854SD2";
 
+    /**
+     * This method adds <code>User</code> user to the bank's users
+     * using the specified <code>User</code> object.
+     *
+     * @param user     the <code>User</code> object
+     * @return         <code>boolean</code>
+     */
     public static void addUser(User user) throws InvalidPassportException {
         if(user != null){
             if(!User.isPassportValid(user.getPassportNumber())){
@@ -35,6 +46,15 @@ public class Manager {
 
         return null;
     }
+
+    /**
+     * This method adds <code>Card</code> card to <code>User</code>
+     * user's cards using the specified <code>String</code> passportNum and <code>Card</code> objects.
+     *
+     * @param passport     the <code>String</code> passportNum
+     * @param card     the <code>Card</code> object
+     * @return         <code>boolean</code>
+     */
 
     public static boolean AddCard(String passport, Card card){
         if(!User.isPassportValid(passport)) return false;
@@ -105,6 +125,14 @@ public class Manager {
 
     }
 
+    /**
+     * This method adds <code>Deposit</code> deposit to <code>User</code>
+     * user's deposits using the specified <code>User</code> and <code>Deposit</code> objects.
+     *
+     * @param deposit     the <code>Deposit</code> object
+     * @return            <code>boolean</code>
+     */
+
     public static boolean addDeposit(String passport, Deposit deposit){
         if(!User.isPassportValid(passport)) return false;
 
@@ -122,7 +150,7 @@ public class Manager {
         Deposit deposit = Bank.requestDepositData(depositNumber,authenticationCode);
 
         if(deposit == null || !depositBelongsToUser(depositNumber, passport))
-            throw new im.aua.bankProject.exceptions.DepositNotFoundException();
+            throw new im.aua.bankProject.core.exceptions.DepositNotFoundException();
         String info = deposit.getDepositExtracts();
         Bank.saveChanges(authenticationCode);
         return info;
